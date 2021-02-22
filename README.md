@@ -9,7 +9,6 @@ This is a rough fork from the https://github.com/leonfrench/HumanHabenula projec
 
 ### Steps
 * download the Allen Adult human brain atlas to /data/raw/allen_HBA
-* download the Allen+Brainspan fetal human brain atlas to /data/raw/allen_human_fetal_brain
 * run the R scripts in numbered order
 
 ### References for data sources used
