@@ -8,9 +8,9 @@ library(magrittr)
 library(limma)
 library(readr)
 
-inclusionPattern <- "meynert"
+#inclusionPattern <- "meynert"
 
-#inclusionPattern <- "band"
+inclusionPattern <- "band"
 
 #inclusionPattern <- "middle frontal gyrus, (right|left), superior bank of gyrus"
 #inclusionPattern <- "middle frontal gyrus, superior bank of gyrus" #do left + right striping earlier
@@ -105,8 +105,27 @@ for (donorFolder in list.files(paste0("./data/raw/",sourceExpression,"/"), patte
 #Numbers don't line up, because of duplicate probe_name...1, etc columns
 colnames(allExpression)[1]<- "probe_name"
 
+#DB specific grouping
+if (inclusionPattern == "band") {
+  allsampleAnnot %<>% mutate(structure_name_left_right_stripped = if_else(structure_name_left_right_stripped == "nucleus of the diagonal band, vertical division", "diagonal band", structure_name_left_right_stripped))
+  allsampleAnnot %<>% mutate(structure_name_left_right_stripped = if_else(structure_name_left_right_stripped == "nucleus of the diagonal band, horizontal division", "diagonal band", structure_name_left_right_stripped))
+  allsampleAnnot %>% filter(grepl(inclusionPattern, structure_name_left_right_stripped)) %>% group_by(structure_name_left_right_stripped) %>% summarize(n=dplyr::n())
+  allsampleAnnot %>% filter(grepl(inclusionPattern, structure_name_left_right_stripped))
+}
+
 sampleAnnot <- allsampleAnnot
-################################
+
+#Remove diagonal band sample that has wrong placement
+
+filter(sampleAnnot, grepl("band", structure_name))
+
+as.data.frame(filter(sampleAnnot, grepl("band", structure_name))) %>% filter(mni_nlin_z > 36)
+
+#unique ID  ID.4310.6.156906860.126532035.normalized_microarray_donor15496
+
+sampleAnnot %<>% subset(uniqueID!="ID.4310.6.156906860.126532035.normalized_microarray_donor15496")
+
+################################3
 
 expressionMatrix <- allExpression[, c("probe_name", sampleAnnot$uniqueID)]
 
@@ -154,7 +173,6 @@ sampleAnnot %>% filter(grepl(inclusionPattern, structure_name_left_right_strippe
 as.data.frame(sampleAnnot %>% filter(grepl(inclusionPattern, structure_name_left_right_stripped)) %>% select(structure_name))
 #####
 
-
 regionByGene <- NULL
 for (targetRegion in sort(unique(sampleAnnot$structure_name_left_right_stripped))) {
   print(targetRegion)
@@ -195,4 +213,7 @@ for (targetRegion in sort(unique(sampleAnnot$structure_name_left_right_stripped)
     regionByGene <- inner_join(regionByGene, gene_summary, by= "gene_symbol") 
   }
 }
+
+test <- read_csv("results/meynert.neocortex.FALSE/limma/basal nucleus of meynert.allen_HBA.geneSummary.csv")
+test <- test[order(test$pValueWithDirection, decreasing = TRUE),]
 
