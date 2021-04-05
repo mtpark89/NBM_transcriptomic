@@ -190,7 +190,7 @@ for (targetRegion in sort(unique(sampleAnnot$structure_name_left_right_stripped)
   limmaResults <- inner_join(limmaResults, qc_table, by= "probe_name")
   #may have slight bias for longer genes with more probes
   gene_summary <- limmaResults %>% group_by(gene_symbol) %>% arrange(p.value) %>% 
-    summarize(p.value = first(p.value), direction=sign(first(t)))
+    summarize(p.value = first(p.value), direction=sign(first(t)), tval=first(t))
   #convert to ranks
   gene_summary %<>% mutate(pValueWithDirection = direction * (nrow(gene_summary) - rank(p.value)))
 
@@ -205,7 +205,6 @@ for (targetRegion in sort(unique(sampleAnnot$structure_name_left_right_stripped)
   
   gene_summary %<>% select(gene_symbol, !! targetRegion := pValueWithDirection)
   
-  
   #join to a region by gene matrix
   if (is.null(regionByGene)) { 
     regionByGene <- gene_summary 
@@ -214,6 +213,5 @@ for (targetRegion in sort(unique(sampleAnnot$structure_name_left_right_stripped)
   }
 }
 
-test <- read_csv("results/meynert.neocortex.FALSE/limma/basal nucleus of meynert.allen_HBA.geneSummary.csv")
-test <- test[order(test$pValueWithDirection, decreasing = TRUE),]
+write_tsv(regionByGene, paste0("./data/processed/",inclusionPattern, ".neocortex.", neoCortexOnly, "/", sourceExpression, "_brainarea_vs_genes_exp_qcNames.tsv"))
 

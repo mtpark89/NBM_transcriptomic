@@ -69,6 +69,7 @@ normalized_microarray_donor15697
 probeInfo <- read_csv(paste0("./data/raw/allen_human_fetal_brain/lmd_matrix_12566/rows_metadata.csv"))
 probeInfo %<>% rename(probe_id = probeset_id, probe_name = probeset_name)
 
+#Replace with Gabe's re-registered files
 sampleFilename <- "SampleAnnot_nlin.csv"
 
 allsampleAnnot = NULL
@@ -172,7 +173,7 @@ for (targetRegion in sort(unique(sampleAnnot$structure_name_left_right_stripped)
   limmaResults <- inner_join(limmaResults, qc_table, by= "probe_name")
   #may have slight bias for longer genes with more probes
   gene_summary <- limmaResults %>% group_by(gene_symbol) %>% arrange(p.value) %>% 
-    summarize(p.value = first(p.value), direction=sign(first(t)))
+    summarize(p.value = first(p.value), direction=sign(first(t)), tval=first(t))
   #convert to ranks
   gene_summary %<>% mutate(pValueWithDirection = direction * (nrow(gene_summary) - rank(p.value)))
 
@@ -195,4 +196,6 @@ for (targetRegion in sort(unique(sampleAnnot$structure_name_left_right_stripped)
     regionByGene <- inner_join(regionByGene, gene_summary, by= "gene_symbol") 
   }
 }
+
+write_tsv(regionByGene, paste0("./data/processed/",inclusionPattern, ".neocortex.", neoCortexOnly, "/", sourceExpression, "_brainarea_vs_genes_exp_qcNames.tsv"))
 
