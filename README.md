@@ -1,8 +1,6 @@
 # NBM expression project
-Code to extract and characterize brain region specific expression (primarily from the Allen Brain Institute atlases)
-
-This code corresponds to the article titled: "Transcriptomic Characterization of the Human Insular Cortex and Claustrum"
-https://www.frontiersin.org/articles/10.3389/fnana.2019.00094/full
+Code to extract and characterize brain region specific expression (primarily from the Allen Brain Institute atlases).
+Code for analysis of NBM neuroimaging data from TOPSY dataset.
 
 This is a rough fork from the https://github.com/leonfrench/HumanHabenula project that generalized it and applied it to the basal forebrain regions (diagonal band and nucleus basalis of Meynert).
 
